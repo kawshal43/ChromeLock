@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChromeLock — Settings</title>
+  <link rel="stylesheet" href="../lock/lock.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-container">
+    <!-- Header -->
+    <header class="settings-header">
+      <div class="header-brand">
+        <img src="../assets/icon32.png" alt="ChromeLock" class="header-icon" />
+        <div>
+          <h1 class="header-title">ChromeLock Settings</h1>
+          <p class="header-desc">Manage security preferences and master authentication</p>
+        </div>
+      </div>
+      <a href="../newtab/newtab.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Close
+      </a>
+    </header>
+
+    <!-- Main Content Panels -->
+    <div class="settings-grid">
+      <!-- Panel 1: Change Master Password -->
+      <section class="settings-card" aria-labelledby="change-pwd-title">
+        <h2 id="change-pwd-title" class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Change Master Password
+        </h2>
+        <p class="card-subtitle">Verify your current master password and establish a new one.</p>
+
+        <form id="change-pwd-form" class="settings-form" novalidate autocomplete="off">
+          <!-- Current Password -->
+          <div class="input-group">
+            <label for="current-password" class="field-label">Current Master Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                id="current-password"
+                class="password-input"
+                placeholder="Enter current password"
+                autocomplete="current-password"
+                required
+              />
+              <button type="button" class="toggle-eye-btn" data-target="current-password" aria-label="Toggle visibility">
+                <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- New Password -->
+          <div class="input-group">
+            <label for="new-password" class="field-label">New Password (min. 6 characters)</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                id="new-password"
+                class="password-input"
+                placeholder="Enter new password"
+                autocomplete="new-password"
+                required
+              />
+              <button type="button" class="toggle-eye-btn" data-target="new-password" aria-label="Toggle visibility">
+                <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm New Password -->
+          <div class="input-group">
+            <label for="confirm-new-password" class="field-label">Confirm New Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                id="confirm-new-password"
+                class="password-input"
+                placeholder="Confirm new password"
+                autocomplete="new-password"
+                required
+              />
+              <button type="button" class="toggle-eye-btn" data-target="confirm-new-password" aria-label="Toggle visibility">
+                <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="pwd-status" class="status-message hidden"></div>
+
+          <button type="submit" id="change-pwd-btn" class="unlock-btn">
+            CHANGE PASSWORD
+          </button>
+        </form>
+      </section>
+
+      <!-- Panel 2: Auto-Lock Preference -->
+      <section class="settings-card" aria-labelledby="autolock-title">
+        <h2 id="autolock-title" class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Inactivity Auto-Lock
+        </h2>
+        <p class="card-subtitle">Automatically locks your browser session after a period of user inactivity.</p>
+
+        <div class="autolock-row">
+          <label for="autolock-select" class="field-label">Auto-lock after:</label>
+          <select id="autolock-select" class="settings-select">
+            <option value="0">Never (Default)</option>
+            <option value="1">1 minute</option>
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="30">30 minutes</option>
+          </select>
+        </div>
+        <span id="autolock-saved-indicator" class="saved-indicator hidden">Saved!</span>
+
+        <!-- Panel 3: Cryptographic & Architecture Specs -->
+        <div class="crypto-spec-box">
+          <h3 class="spec-title">Security Specifications</h3>
+          <ul class="spec-list">
+            <li><strong>Derivation:</strong> PBKDF2 with SHA-256 (100,000 rounds)</li>
+            <li><strong>Salt:</strong> 16-byte cryptographically secure random salt</li>
+            <li><strong>Lock Scope:</strong> Session-scoped (purged on Chrome exit)</li>
+            <li><strong>Fail Model:</strong> Fail-Closed (defaults to LOCKED)</li>
+            <li><strong>Network:</strong> 100% Offline (zero analytics, zero external requests)</li>
+          </ul>
+        </div>
+
+        <!-- Developer Info Box -->
+        <div class="crypto-spec-box developer-box">
+          <h3 class="spec-title">Developer Details</h3>
+          <ul class="spec-list">
+            <li><strong>Name:</strong> RMA KAWSHAL</li>
+            <li><strong>Email:</strong> <a href="mailto:kawshals258@gmail.com" style="color: #3b82f6; text-decoration: none;">kawshals258@gmail.com</a></li>
+            <li><strong>Phone:</strong> 074 0532 502</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module" src="settings.js"></script>
+</body>
+</html>
+

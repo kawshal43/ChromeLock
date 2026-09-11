@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChromeLock — Session Locked</title>
+  <link rel="stylesheet" href="lock.css">
+</head>
+<body>
+  <div class="lock-wrapper">
+    <main class="lock-card" role="region" aria-labelledby="lock-title">
+      <!-- Lock Emblem -->
+      <div class="lock-header">
+        <div class="lock-icon-container" aria-hidden="true">
+          <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            <circle cx="12" cy="16" r="1.5"></circle>
+            <path d="M12 17.5v2"></path>
+          </svg>
+        </div>
+        <h1 id="lock-title" class="lock-title">CHROME LOCKED</h1>
+        <p class="lock-subtitle">Enter your master password to continue</p>
+      </div>
+
+      <!-- Password Authentication Form -->
+      <form id="lock-form" class="lock-form" novalidate autocomplete="off">
+        <div class="input-group">
+          <label for="password-input" class="sr-only">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="password-input"
+              class="password-input"
+              placeholder="Master Password"
+              autocomplete="current-password"
+              autofocus
+              required
+              aria-describedby="status-message"
+            />
+            <button
+              type="button"
+              id="toggle-visibility-btn"
+              class="toggle-eye-btn"
+              aria-label="Toggle password visibility"
+              tabindex="0"
+            >
+              <!-- Eye Open SVG -->
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <!-- Eye Closed SVG -->
+              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Status / Error / Cooldown Message -->
+        <div id="status-container" class="status-container" aria-live="polite">
+          <div id="status-message" class="status-message hidden"></div>
+        </div>
+
+        <!-- Cooldown Banner (appears on 5 failed attempts) -->
+        <div id="cooldown-banner" class="cooldown-banner hidden" role="alert">
+          <div class="cooldown-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="cooldown-content">
+            <span class="cooldown-title">Too many incorrect attempts</span>
+            <span class="cooldown-timer-label">Try again in: <strong id="countdown-display">00:30</strong></span>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button type="submit" id="unlock-btn" class="unlock-btn">
+          <span class="btn-text">UNLOCK</span>
+        </button>
+      </form>
+
+      <!-- Footer Info -->
+      <div class="lock-footer">
+        <span class="security-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Encrypted with PBKDF2 & SHA-256
+        </span>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="lock.js"></script>
+</body>
+</html>
+

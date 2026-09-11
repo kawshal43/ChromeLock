@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "ChromeLock",
+  "version": "1.0.0",
+  "author": "RMA KAWSHAL <kawshals258@gmail.com>",
+  "description": "Secure, session-based browser lock screen protecting Chrome navigation with Web Crypto PBKDF2 authentication.",
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "32": "assets/icon32.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    },
+    "default_title": "ChromeLock"
+  },
+  "options_page": "settings/settings.html",
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "commands",
+    "idle",
+    "alarms"
+  ],
+  "commands": {
+    "lock_chrome": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "Command+Shift+L"
+      },
+      "description": "Lock Chrome immediately"
+    }
+  },
+  "offline_enabled": true
+}
+

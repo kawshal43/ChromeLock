@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab</title>
+  <link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="top-bar">
+    <div class="brand">
+      <img src="../assets/icon32.png" alt="ChromeLock" class="brand-icon" />
+      <span class="brand-name">ChromeLock</span>
+      <span class="status-pill">🔓 Unlocked</span>
+    </div>
+
+    <div class="top-actions">
+      <button id="quick-lock-btn" class="action-btn lock-action-btn" title="Lock Chrome Now (Ctrl+Shift+L)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Lock Now</span>
+      </button>
+      <a href="../settings/settings.html" class="action-btn settings-action-btn" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Dashboard -->
+  <main class="dashboard-content">
+    <!-- Clock & Date Widget -->
+    <div class="clock-widget">
+      <div id="clock-time" class="clock-time">12:00</div>
+      <div id="clock-date" class="clock-date">Thursday, September 11</div>
+    </div>
+
+    <!-- Search Box -->
+    <form id="search-form" class="search-form" action="https://www.google.com/search" method="GET">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="search"
+          name="q"
+          id="search-input"
+          class="search-input"
+          placeholder="Search Google or type a URL"
+          autocomplete="off"
+          autofocus
+        />
+      </div>
+    </form>
+
+    <!-- Quick Links Grid -->
+    <div class="shortcuts-grid">
+      <a href="https://www.google.com" class="shortcut-item">
+        <div class="shortcut-icon-circle">G</div>
+        <span class="shortcut-label">Google</span>
+      </a>
+      <a href="https://www.youtube.com" class="shortcut-item">
+        <div class="shortcut-icon-circle yt">YT</div>
+        <span class="shortcut-label">YouTube</span>
+      </a>
+      <a href="https://github.com" class="shortcut-item">
+        <div class="shortcut-icon-circle gh">GH</div>
+        <span class="shortcut-label">GitHub</span>
+      </a>
+      <a href="https://en.wikipedia.org" class="shortcut-item">
+        <div class="shortcut-icon-circle wiki">W</div>
+        <span class="shortcut-label">Wikipedia</span>
+      </a>
+      <a href="https://reddit.com" class="shortcut-item">
+        <div class="shortcut-icon-circle rd">RD</div>
+        <span class="shortcut-label">Reddit</span>
+      </a>
+    </div>
+  </main>
+
+  <script type="module" src="newtab.js"></script>
+</body>
+</html>
+

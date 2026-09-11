@@ -1,0 +1,354 @@
+/* ChromeLock - Dark Modern Security Interface */
+
+:root {
+  --bg-color: #0b0f19;
+  --bg-gradient: radial-gradient(circle at 50% 25%, #151d30 0%, #0b0f19 80%);
+  --card-bg: rgba(18, 26, 43, 0.85);
+  --card-border: #22304d;
+  --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --accent-primary: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-active: #1d4ed8;
+  --accent-glow: rgba(59, 130, 246, 0.25);
+  
+  --input-bg: #0f1626;
+  --input-border: #273654;
+  --input-focus-border: #3b82f6;
+  
+  --error-color: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.12);
+  --error-border: rgba(239, 68, 68, 0.25);
+  
+  --cooldown-color: #f59e0b;
+  --cooldown-bg: rgba(245, 158, 11, 0.12);
+  --cooldown-border: rgba(245, 158, 11, 0.3);
+
+  --font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --transition-fast: 180ms ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  font-family: var(--font-stack);
+  background-color: var(--bg-color);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.lock-wrapper {
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+}
+
+.lock-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  padding: 36px 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+/* Header */
+.lock-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.lock-icon-container {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+}
+
+.lock-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.lock-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.lock-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Form & Inputs */
+.lock-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  width: 100%;
+  padding: 13px 44px 13px 16px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.password-input::placeholder {
+  color: var(--text-muted);
+}
+
+.password-input:focus {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.password-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: rgba(15, 22, 38, 0.6);
+  border-color: #1a2336;
+}
+
+/* Toggle Eye Button */
+.toggle-eye-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.toggle-eye-btn:hover {
+  color: var(--text-secondary);
+}
+
+.toggle-eye-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+}
+
+.toggle-eye-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Status & Errors */
+.status-container {
+  min-height: 20px;
+}
+
+.status-message {
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-color);
+  text-align: center;
+  animation: fadeIn 200ms ease;
+}
+
+/* Cooldown Banner */
+.cooldown-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background-color: var(--cooldown-bg);
+  border: 1px solid var(--cooldown-border);
+  color: var(--cooldown-color);
+  animation: fadeIn 200ms ease;
+}
+
+.cooldown-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.cooldown-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cooldown-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cooldown-timer-label {
+  font-size: 0.85rem;
+}
+
+.cooldown-timer-label strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  color: #fbbf24;
+}
+
+/* Unlock Button */
+.unlock-btn {
+  width: 100%;
+  padding: 13px;
+  background-color: var(--accent-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unlock-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.unlock-btn:active:not(:disabled) {
+  background-color: var(--accent-active);
+  transform: translateY(1px);
+}
+
+.unlock-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.unlock-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.lock-footer {
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.security-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Subtle Card Shake on Failure */
+.shake {
+  animation: cardShake 300ms ease;
+}
+
+@keyframes cardShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Desktop Responsiveness */
+@media (max-width: 480px) {
+  .lock-card {
+    padding: 28px 20px 22px;
+  }
+}
+
