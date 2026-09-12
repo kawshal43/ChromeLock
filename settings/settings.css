@@ -1,14 +1,27 @@
-/* ChromeLock - Settings Page Styles */
+/* Override body flex centering from lock.css to ensure standard top-to-bottom document flow */
+html, body {
+  width: 100%;
+  height: auto !important;
+  min-height: 100vh !important;
+  display: block !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: var(--bg-color);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+}
 
 .settings-container {
   width: 100%;
-  max-width: 920px;
-  min-height: 100vh;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 44px 28px 80px 28px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
+  box-sizing: border-box;
 }
 
 .settings-header {
@@ -16,55 +29,105 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--card-border);
-  padding-bottom: 20px;
+  padding-bottom: 24px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .header-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
-.header-icon {
-  width: 36px;
-  height: 36px;
+.header-icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+.header-lock-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--accent-primary);
+}
+
+.header-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .header-title {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.settings-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  letter-spacing: 0.02em;
 }
 
 .header-desc {
   font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-top: 2px;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: var(--card-bg);
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(30, 41, 59, 0.6);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
-  transition: all 150ms ease;
+  cursor: pointer;
+  transition: all 180ms ease;
+  white-space: nowrap;
 }
 
 .back-link svg {
   width: 16px;
   height: 16px;
+  transition: transform 180ms ease;
 }
 
 .back-link:hover {
   border-color: #3b82f6;
   color: var(--text-primary);
+  background: rgba(51, 65, 85, 0.8);
+}
+
+.back-link:hover svg {
+  transform: translateX(-3px);
 }
 
 .settings-grid {
