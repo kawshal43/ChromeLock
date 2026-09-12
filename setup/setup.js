@@ -1,6 +1,7 @@
 /**
  * ChromeLock - Setup Controller
- * Handles master password creation, security recovery question, and initial lock.
+ * Handles master password creation, security recovery question,
+ * collapsible advanced settings, and mandatory terms acceptance.
  */
 
 import { AuthManager, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../scripts/auth.js';
@@ -19,16 +20,28 @@ const customQuestionInput = document.getElementById('custom-question-input');
 const securityAnswerInput = document.getElementById('security-answer-input');
 const toggleAnswerBtn = document.getElementById('toggle-answer-btn');
 
-const createLockBtn = document.getElementById('create-lock-btn');
-const statusMessage = document.getElementById('status-message');
-
+const toggleAdvancedBtn = document.getElementById('toggle-advanced-btn');
+const advancedPanel = document.getElementById('advanced-panel');
 const setupAttemptsSelect = document.getElementById('setup-attempts-select');
 const setupAutolockSelect = document.getElementById('setup-autolock-select');
 const setupSecondsCheckbox = document.getElementById('setup-seconds-checkbox');
 
+const termsCheckbox = document.getElementById('terms-checkbox');
+const termsCard = document.querySelector('.terms-agreement-card');
+const openTermsBtn = document.getElementById('open-terms-btn');
+const termsModal = document.getElementById('terms-modal');
+const closeTermsBtn = document.getElementById('close-terms-btn');
+const declineTermsBtn = document.getElementById('decline-terms-btn');
+const acceptTermsBtn = document.getElementById('accept-terms-btn');
+
+const createLockBtn = document.getElementById('create-lock-btn');
+const statusMessage = document.getElementById('status-message');
+
 let isSubmitting = false;
 
+// Password visibility toggles
 function setupToggle(inputEl, btnEl) {
+  if (!inputEl || !btnEl) return;
   const eyeOpen = btnEl.querySelector('.eye-open');
   const eyeClosed = btnEl.querySelector('.eye-closed');
 
@@ -37,13 +50,13 @@ function setupToggle(inputEl, btnEl) {
     inputEl.type = isPwd ? 'text' : 'password';
 
     if (isPwd) {
-      eyeOpen.classList.add('hidden');
-      eyeClosed.classList.remove('hidden');
-      btnEl.setAttribute('aria-label', 'Hide password');
+      eyeOpen?.classList.add('hidden');
+      eyeClosed?.classList.remove('hidden');
+      btnEl.setAttribute('aria-label', 'Hide text');
     } else {
-      eyeOpen.classList.remove('hidden');
-      eyeClosed.classList.add('hidden');
-      btnEl.setAttribute('aria-label', 'Show password');
+      eyeOpen?.classList.remove('hidden');
+      eyeClosed?.classList.add('hidden');
+      btnEl.setAttribute('aria-label', 'Show text');
     }
   });
 }
@@ -52,13 +65,67 @@ setupToggle(passwordInput, togglePwdBtn);
 setupToggle(confirmPasswordInput, toggleConfirmPwdBtn);
 setupToggle(securityAnswerInput, toggleAnswerBtn);
 
-// Custom question toggle
+// Custom question dropdown toggle
 securityQuestionSelect.addEventListener('change', () => {
   if (securityQuestionSelect.value === 'custom') {
     customQuestionGroup.classList.remove('hidden');
     customQuestionInput.focus();
   } else {
     customQuestionGroup.classList.add('hidden');
+  }
+});
+
+// Advanced Settings Accordion toggle
+toggleAdvancedBtn.addEventListener('click', () => {
+  const isExpanded = toggleAdvancedBtn.getAttribute('aria-expanded') === 'true';
+  toggleAdvancedBtn.setAttribute('aria-expanded', String(!isExpanded));
+  if (isExpanded) {
+    advancedPanel.classList.add('collapsed');
+  } else {
+    advancedPanel.classList.remove('collapsed');
+  }
+});
+
+// Terms of Service Modal handling
+function openTermsModal() {
+  termsModal.classList.remove('hidden');
+}
+
+function closeTermsModal() {
+  termsModal.classList.add('hidden');
+}
+
+openTermsBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  openTermsModal();
+});
+
+closeTermsBtn.addEventListener('click', closeTermsModal);
+declineTermsBtn.addEventListener('click', closeTermsModal);
+
+acceptTermsBtn.addEventListener('click', () => {
+  termsCheckbox.checked = true;
+  termsCard.classList.remove('terms-highlight');
+  closeTermsModal();
+});
+
+// Close modal when clicking backdrop
+termsModal.addEventListener('click', (e) => {
+  if (e.target === termsModal) {
+    closeTermsModal();
+  }
+});
+
+// Close modal on ESC key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !termsModal.classList.contains('hidden')) {
+    closeTermsModal();
+  }
+});
+
+termsCheckbox.addEventListener('change', () => {
+  if (termsCheckbox.checked) {
+    termsCard.classList.remove('terms-highlight');
   }
 });
 
@@ -85,7 +152,7 @@ async function handleSetup(e) {
   const password = passwordInput.value;
   const confirmPassword = confirmPasswordInput.value;
 
-  // Validation
+  // 1. Password validation
   if (!password) {
     showError('Please enter a master password.');
     passwordInput.focus();
@@ -110,7 +177,7 @@ async function handleSetup(e) {
     return;
   }
 
-  // Security question & answer validation
+  // 2. Security question & answer validation
   let question = securityQuestionSelect.value;
   if (question === 'custom') {
     question = (customQuestionInput.value || '').trim();
@@ -128,9 +195,18 @@ async function handleSetup(e) {
     return;
   }
 
+  // 3. Mandatory Terms Acceptance Validation
+  if (!termsCheckbox.checked) {
+    termsCard.classList.add('terms-highlight');
+    showError('You must agree to the Terms of Service & Disclaimer to continue.');
+    termsCheckbox.focus();
+    return;
+  }
+
   isSubmitting = true;
   createLockBtn.disabled = true;
 
+  try {
     const attemptsVal = parseInt(setupAttemptsSelect.value, 10) || 5;
     const cooldownSecs = attemptsVal === 3 ? 15 : attemptsVal === 10 ? 60 : 30;
     const autoLockMinutes = parseFloat(setupAutolockSelect.value) || 0;
@@ -174,8 +250,12 @@ setupForm.addEventListener('submit', handleSetup);
 
 // Ensure user hasn't already completed setup
 (async () => {
-  const isConfigured = await AuthManager.isSetupCompleted();
-  if (isConfigured) {
-    window.location.replace(chrome.runtime.getURL('lock/lock.html'));
+  try {
+    const isConfigured = await AuthManager.isSetupCompleted();
+    if (isConfigured) {
+      window.location.replace(chrome.runtime.getURL('lock/lock.html'));
+    }
+  } catch {
+    // Storage check fallback
   }
 })();

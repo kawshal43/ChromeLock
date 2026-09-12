@@ -21,7 +21,7 @@
           </svg>
         </div>
         <h1 id="setup-title" class="lock-title">CHROMELOCK</h1>
-        <p class="lock-subtitle">Create a master password & security recovery question</p>
+        <p class="lock-subtitle">Master Password & Security Setup</p>
       </div>
 
       <!-- Setup Form -->
@@ -46,7 +46,7 @@
               aria-label="Toggle password visibility"
             >
               <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
               <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -100,7 +100,7 @@
             </span>
             <span class="recovery-badge">Case-Insensitive</span>
           </div>
-          <p class="recovery-hint">Used to reset your password if you ever forget it. Answers are not case-sensitive.</p>
+          <p class="recovery-hint">Used to reset your master password if you ever forget it. Answers are not case-sensitive.</p>
 
           <div class="input-group">
             <label for="security-question-select" class="input-label">Security Question</label>
@@ -143,7 +143,7 @@
                 aria-label="Toggle answer visibility"
               >
                 <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
                 <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -155,53 +155,76 @@
           </div>
         </div>
 
-        <!-- Recommended Settings Section -->
-        <div class="recovery-section recommended-section">
-          <div class="recovery-header">
-            <span class="recovery-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <!-- Advanced Security Settings Collapsible Section -->
+        <div class="advanced-container">
+          <button type="button" id="toggle-advanced-btn" class="advanced-toggle-btn" aria-expanded="false">
+            <span class="advanced-btn-left">
+              <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
               </svg>
-              Recommended Security Settings
+              <span>Advanced Settings</span>
             </span>
-            <span class="recovery-badge optimal-badge">Pre-Configured</span>
-          </div>
-          <p class="recovery-hint">These optimal settings are pre-selected for maximum protection. You can adjust them now or change them in Settings anytime.</p>
+            <span class="advanced-btn-right">
+              <span class="advanced-badge">Recommended Active</span>
+              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <label for="setup-attempts-select" class="input-label">Lockout Policy</label>
-              <span class="setting-desc">Wrong attempts before lockout.</span>
-            </div>
-            <select id="setup-attempts-select" class="setup-select compact-select">
-              <option value="3">3 Tries (15s Lock)</option>
-              <option value="5" selected>5 Tries (30s Lock - Recommended)</option>
-              <option value="10">10 Tries (60s Lock)</option>
-            </select>
-          </div>
+          <div id="advanced-panel" class="advanced-panel collapsed">
+            <p class="advanced-hint">Optimal security policies are pre-configured below. Customize only if required:</p>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <label for="setup-autolock-select" class="input-label">Inactivity Auto-Lock</label>
-              <span class="setting-desc">Locks Chrome if untouched.</span>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label for="setup-attempts-select" class="input-label">Lockout Policy</label>
+                <span class="setting-desc">Failed attempts before timed lock.</span>
+              </div>
+              <select id="setup-attempts-select" class="setup-select compact-select">
+                <option value="3">3 Tries (15s Lock)</option>
+                <option value="5" selected>5 Tries (30s Lock - Recommended)</option>
+                <option value="10">10 Tries (60s Lock)</option>
+              </select>
             </div>
-            <select id="setup-autolock-select" class="setup-select compact-select">
-              <option value="0">Never</option>
-              <option value="1">1 minute</option>
-              <option value="2">2 minutes</option>
-              <option value="5" selected>5 minutes (Recommended)</option>
-              <option value="10">10 minutes</option>
-              <option value="30">30 minutes</option>
-            </select>
-          </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <label for="setup-seconds-checkbox" class="input-label">Display Seconds in Clock</label>
-              <span class="setting-desc">Shows live seconds (e.g. 11:28:45).</span>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label for="setup-autolock-select" class="input-label">Inactivity Auto-Lock</label>
+                <span class="setting-desc">Auto-locks Chrome if untouched.</span>
+              </div>
+              <select id="setup-autolock-select" class="setup-select compact-select">
+                <option value="0">Never</option>
+                <option value="0.5">30 seconds</option>
+                <option value="1">1 minute</option>
+                <option value="2">2 minutes</option>
+                <option value="5" selected>5 minutes (Recommended)</option>
+                <option value="10">10 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="60">1 hour</option>
+              </select>
             </div>
-            <input type="checkbox" id="setup-seconds-checkbox" class="settings-checkbox" checked />
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <label for="setup-seconds-checkbox" class="input-label">Display Seconds in Clock</label>
+                <span class="setting-desc">Shows live seconds (e.g., 11:28:45).</span>
+              </div>
+              <input type="checkbox" id="setup-seconds-checkbox" class="settings-checkbox" checked />
+            </div>
           </div>
+        </div>
+
+        <!-- Terms of Service & Disclaimer Checkbox -->
+        <div class="terms-agreement-card">
+          <label class="terms-checkbox-label" for="terms-checkbox">
+            <input type="checkbox" id="terms-checkbox" class="settings-checkbox terms-checkbox" required />
+            <span class="terms-label-text">
+              I have read and agree to the 
+              <button type="button" id="open-terms-btn" class="terms-link-btn">Terms of Service & Disclaimer</button>
+            </span>
+          </label>
+          <p class="terms-note">Mandatory for offline cryptographic setup & zero-cloud liability agreement.</p>
         </div>
 
         <!-- Status Message -->
@@ -221,10 +244,131 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
-          Master passwords & answers are securely hashed with PBKDF2
+          100% Local & Offline • PBKDF2 Web Crypto Protected
         </span>
       </div>
     </main>
+  </div>
+
+  <!-- Terms of Service & Disclaimer Modal -->
+  <div id="terms-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+    <div class="modal-card terms-modal-card">
+      <div class="terms-modal-header">
+        <div class="terms-modal-title-group">
+          <div class="terms-modal-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h2 id="terms-modal-title" class="terms-modal-title">Terms of Service & Disclaimer</h2>
+            <p class="terms-modal-subtitle">Legal Notice, Intellectual Property & Liability Terms</p>
+          </div>
+        </div>
+        <button type="button" id="close-terms-btn" class="modal-close-btn" aria-label="Close Terms Dialog">&times;</button>
+      </div>
+
+      <div class="terms-modal-body">
+        <div class="terms-section">
+          <h3>
+            <span class="terms-sec-num">1</span>
+            100% Free Software & Anti-Commercialization Protection
+          </h3>
+          <p>
+            <strong>ChromeLock is completely free of charge.</strong> This software is created, authored, and owned by <strong>RMA KAWSHAL</strong>. 
+            No person, company, agency, or reseller has authorization to sell, charge fees, repackage for commercial gain, bundle with paid services, or monetize this software in any format. 
+            If any entity or individual attempts to sell this software without explicit prior written authorization from the owner, the owner reserves the full right to take immediate legal action, file intellectual property infringement claims, and seek statutory damages under applicable international and national laws.
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h3>
+            <span class="terms-sec-num">2</span>
+            Zero-Cloud Architecture & Developer Non-Liability
+          </h3>
+          <p>
+            ChromeLock operates strictly as an offline, client-side browser extension. 
+            <strong>No master passwords, recovery answers, browsing URLs, or personal data are ever sent to, synced with, or stored in any cloud, external server, or third-party database.</strong> 
+            All cryptographic key derivations (PBKDF2-SHA-256) and salt verifications occur entirely locally within your browser's local sandbox.
+          </p>
+          <p class="terms-highlight-box">
+            <strong>Important Notice on Forgotten Credentials:</strong> Because this extension does not maintain any cloud database, external master backdoors, or administrative overrides: 
+            <strong>If you forget your master password and your secret recovery answer, or accidentally lock your browser, the developer (RMA KAWSHAL) and contributors accept zero responsibility, liability, or technical obligation for recovering your access.</strong> 
+            The user is solely responsible for recording and remembering their credentials.
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h3>
+            <span class="terms-sec-num">3</span>
+            Browser-Level Scope vs. Operating System Security
+          </h3>
+          <p>
+            ChromeLock enforces security at the Google Chrome application layer across windows, tabs, and URL navigations. 
+            <strong>It is NOT an operating system replacement</strong> (such as Windows Hello, BitLocker disk encryption, or OS login accounts). 
+            It cannot prevent an operating system administrator or local software with task management privileges from terminating the Google Chrome process or removing extension directories from the computer's hard drive.
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h3>
+            <span class="terms-sec-num">4</span>
+            "As-Is" Software License & Warranty Disclaimer
+          </h3>
+          <p>
+            ChromeLock is provided "AS IS" and "AS AVAILABLE", without warranty of any kind, express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, performance, or non-infringement. 
+            In no event shall the developer (RMA KAWSHAL) be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising from the use of, or inability to use, this application.
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h3>
+            <span class="terms-sec-num">5</span>
+            Recovery Question Integrity
+          </h3>
+          <p>
+            The optional recovery question allows you to reset your password locally. For user convenience, security answers are evaluated in a case-insensitive manner (e.g., lowercase, uppercase, and trimmed whitespace are treated equally). However, answers are securely salted and hashed with PBKDF2 and cannot be inspected in plaintext. Keep your recovery answer confidential.
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h3>
+            <span class="terms-sec-num">6</span>
+            Developer & Author Attribution
+          </h3>
+          <p>
+            <strong>Author / Developer:</strong> RMA KAWSHAL<br>
+            <strong>Email:</strong> <a href="mailto:kawshals258@gmail.com" class="terms-link">kawshals258@gmail.com</a><br>
+            <strong>Contact:</strong> 074 0532 502<br>
+            <strong>Repository:</strong> <a href="https://github.com/kawshal43/ChromeLock.git" target="_blank" rel="noopener" class="terms-link">https://github.com/kawshal43/ChromeLock.git</a>
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h3>
+            <span class="terms-sec-num">7</span>
+            Acceptance of Terms
+          </h3>
+          <p>
+            By ticking the "I have read and agree to the Terms of Service & Disclaimer" box and clicking "CREATE LOCK", you acknowledge that you have read, understood, and agreed to all provisions and disclaimers outlined in this document.
+          </p>
+        </div>
+      </div>
+
+      <div class="terms-modal-footer">
+        <button type="button" id="decline-terms-btn" class="modal-cancel-btn">Close</button>
+        <button type="button" id="accept-terms-btn" class="terms-accept-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          I Understand & Agree
+        </button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="setup.js"></script>

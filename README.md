@@ -192,10 +192,31 @@ To prevent bypasses on a managed workstation, configure the following Chrome ent
 
 ---
 
+---
+
+## Terms of Service, Legal Notice & Disclaimers
+
+1. **100% Free Software & Anti-Commercialization Clause**:
+   ChromeLock is completely free of charge. This software is created, authored, and owned by **RMA KAWSHAL**. 
+   No person, company, agency, or reseller has authorization to sell, charge fees, repackage for commercial gain, bundle with paid services, or monetize this software in any format. If anyone attempts to sell this software without explicit prior written authorization, the owner reserves all legal rights to initiate legal action, copyright infringement proceedings, and seek damages under applicable laws.
+
+2. **Zero-Cloud Architecture & Developer Non-Liability**:
+   ChromeLock operates strictly offline. No master passwords, recovery answers, browsing URLs, or personal data are ever sent to, synced with, or stored in any cloud, external server, or third-party database. All cryptographic operations occur 100% locally.
+   **Because developers have no access to your credentials: If you forget your master password and secret recovery answer, or lock yourself out of your browser, the developer (RMA KAWSHAL) bears zero responsibility, liability, or technical obligation for recovering your access.**
+
+3. **Browser-Level Enforcement Scope**:
+   ChromeLock enforces security at the Google Chrome application layer. It does NOT replace operating system credentials (Windows Hello, BitLocker, or system user accounts).
+
+4. **"As-Is" Software License**:
+   ChromeLock is provided "AS IS", without warranty of any kind, express or implied. In no event shall the developer (RMA KAWSHAL) be liable for any direct, indirect, incidental, or consequential damages arising from the use of this software.
+
+---
+
 ## Developer Information
 
 - **Developer**: RMA KAWSHAL
 - **Email**: [kawshals258@gmail.com](mailto:kawshals258@gmail.com)
 - **Phone**: 074 0532 502
+- **GitHub Repository**: [https://github.com/kawshal43/ChromeLock.git](https://github.com/kawshal43/ChromeLock.git)
 
 
