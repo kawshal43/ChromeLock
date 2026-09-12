@@ -42,6 +42,8 @@ html, body {
 
 /* Top Bar */
 .top-bar {
+  position: relative;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -80,15 +82,17 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
+  position: relative;
+  z-index: 101;
 }
 
 .action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: rgba(30, 41, 59, 0.6);
+  gap: 8px;
+  height: 38px;
+  background: rgba(30, 41, 59, 0.7);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
@@ -96,10 +100,18 @@ html, body {
   font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
-  cursor: pointer;
+  cursor: pointer !important;
   outline: none;
   transition: all 180ms ease;
   user-select: none;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 102;
+}
+
+/* Ensure child elements don't intercept pointer events - makes the entire box 100% clickable */
+.action-btn * {
+  pointer-events: none;
 }
 
 .action-btn svg {
@@ -109,25 +121,31 @@ html, body {
 }
 
 .action-btn:hover {
-  background: rgba(51, 65, 85, 0.8);
+  background: rgba(51, 65, 85, 0.85);
   color: var(--text-primary);
   border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.lock-action-btn {
+  padding: 0 16px;
 }
 
 .lock-action-btn:hover {
   border-color: #ef4444;
   color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.12);
 }
 
 .settings-action-btn {
-  padding: 8px 10px;
+  width: 38px;
+  padding: 0;
 }
 
 .settings-action-btn:hover {
   border-color: #3b82f6;
   color: #60a5fa;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.12);
 }
 
 .settings-action-btn:hover svg {
@@ -144,7 +162,8 @@ html, body {
   justify-content: center;
   padding: 24px;
   gap: 36px;
-  margin-top: -40px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Clock Widget with Seconds */
