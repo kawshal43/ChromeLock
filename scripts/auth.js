@@ -1,7 +1,8 @@
 /**
- * ChromeLock - Authentication Service
- * Coordinates password creation, verification, cooldown enforcement, and password changes.
- * Never stores or logs plaintext passwords.
+ * ChromeLock - Authentication & Recovery Service
+ * Coordinates password creation, verification, recovery security questions,
+ * cooldown enforcement, and password changes.
+ * Never stores or logs plaintext passwords or plain security answers.
  */
 
 import { CryptoService } from './crypto.js';
@@ -11,6 +12,17 @@ import { LockManager } from './lock-manager.js';
 
 export const MIN_PASSWORD_LENGTH = 6;
 export const MAX_PASSWORD_LENGTH = 128;
+
+/**
+ * Normalizes security answer: trims whitespace and converts to lowercase.
+ * Ensures case-insensitive matching while preserving security.
+ * @param {string} answer
+ * @returns {string}
+ */
+export function normalizeAnswer(answer) {
+  if (typeof answer !== 'string') return '';
+  return answer.trim().toLowerCase();
+}
 
 export const AuthManager = {
   /**
@@ -51,12 +63,15 @@ export const AuthManager = {
   },
 
   /**
-   * First-time setup: securely derives verifier and persists setup credentials.
+   * First-time setup: securely derives verifiers for master password and optional recovery question.
    * Activates the LOCKED state immediately.
    * @param {string} password
+   * @param {string} [securityQuestion]
+   * @param {string} [securityAnswer]
+   * @param {Object} [options]
    * @returns {Promise<{ success: boolean, error?: string }>}
    */
-  async createPassword(password) {
+  async createPassword(password, securityQuestion = '', securityAnswer = '', options = {}) {
     const validation = this.validatePassword(password);
     if (!validation.valid) {
       return { success: false, error: validation.error };
@@ -70,14 +85,40 @@ export const AuthManager = {
         CryptoService.DEFAULT_ITERATIONS
       );
 
-      await StorageService.local.set({
+      const toSave = {
         setupCompleted: true,
         passwordSalt: salt,
         passwordVerifier: verifier,
         passwordIterations: CryptoService.DEFAULT_ITERATIONS,
         failedAttemptCount: 0,
-        cooldownUntil: null
-      });
+        cooldownUntil: null,
+        lockoutPolicy: options.lockoutPolicy || { maxAttempts: 5, cooldownSeconds: 30 },
+        autoLockDurationMinutes: typeof options.autoLockDurationMinutes === 'number' ? options.autoLockDurationMinutes : 5,
+        clockSettings: options.clockSettings || { showSeconds: true, is24Hour: false },
+        shortcuts: options.shortcuts || [
+          { id: '1', name: 'Google', url: 'https://www.google.com' },
+          { id: '2', name: 'YouTube', url: 'https://www.youtube.com' },
+          { id: '3', name: 'GitHub', url: 'https://github.com' },
+          { id: '4', name: 'Wikipedia', url: 'https://www.wikipedia.org' },
+          { id: '5', name: 'Reddit', url: 'https://www.reddit.com' }
+        ]
+      };
+
+      // If security question & answer provided, hash normalized answer securely
+      const cleanAnswer = normalizeAnswer(securityAnswer);
+      if (securityQuestion && cleanAnswer) {
+        const answerSalt = CryptoService.generateSalt();
+        const answerVerifier = await CryptoService.deriveKey(
+          cleanAnswer,
+          answerSalt,
+          CryptoService.DEFAULT_ITERATIONS
+        );
+        toSave.securityQuestionText = securityQuestion;
+        toSave.securityAnswerSalt = answerSalt;
+        toSave.securityAnswerVerifier = answerVerifier;
+      }
+
+      await StorageService.local.set(toSave);
 
       // Ensure session starts in LOCKED state
       await LockManager.setUnlocked(false);
@@ -90,8 +131,102 @@ export const AuthManager = {
   },
 
   /**
+   * Returns the configured security question (without revealing answer or salt).
+   * @returns {Promise<{ hasQuestion: boolean, question: string }>}
+   */
+  async getSecurityQuestion() {
+    try {
+      const data = await StorageService.local.get('securityQuestionText');
+      const question = data?.securityQuestionText || '';
+      return {
+        hasQuestion: Boolean(question),
+        question
+      };
+    } catch {
+      return { hasQuestion: false, question: '' };
+    }
+  },
+
+  /**
+   * Resets master password using security question verification.
+   * Prevents brute-forcing by incrementing failed attempt counter upon wrong answer.
+   * @param {string} answer
+   * @param {string} newPassword
+   * @returns {Promise<{ success: boolean, error?: string, inCooldown?: boolean, remainingMs?: number }>}
+   */
+  async resetPasswordWithSecurityAnswer(answer, newPassword) {
+    // 1. Check cooldown status
+    const cooldownStatus = await CooldownManager.checkStatus();
+    if (cooldownStatus.inCooldown) {
+      return {
+        success: false,
+        error: 'COOLDOWN_ACTIVE',
+        ...cooldownStatus
+      };
+    }
+
+    // 2. Validate new password format
+    const val = this.validatePassword(newPassword);
+    if (!val.valid) {
+      return { success: false, error: val.error };
+    }
+
+    // 3. Load stored security answer data
+    const data = await StorageService.local.get([
+      'securityQuestionText',
+      'securityAnswerSalt',
+      'securityAnswerVerifier'
+    ]);
+
+    if (!data.securityQuestionText || !data.securityAnswerSalt || !data.securityAnswerVerifier) {
+      return { success: false, error: 'No recovery question configured.' };
+    }
+
+    // 4. Case-insensitive normalization & verification
+    const cleanAnswer = normalizeAnswer(answer);
+    const isAnswerValid = await CryptoService.verifyPassword(
+      cleanAnswer,
+      data.securityAnswerSalt,
+      data.securityAnswerVerifier,
+      CryptoService.DEFAULT_ITERATIONS
+    );
+
+    if (!isAnswerValid) {
+      // Wrong recovery answer counts as failed attempt towards lockout policy
+      const failResult = await CooldownManager.recordFailedAttempt();
+      return {
+        success: false,
+        error: 'INCORRECT_ANSWER',
+        ...failResult
+      };
+    }
+
+    // 5. Answer is correct! Derive new master password key and save
+    const newSalt = CryptoService.generateSalt();
+    const newVerifier = await CryptoService.deriveKey(
+      newPassword,
+      newSalt,
+      CryptoService.DEFAULT_ITERATIONS
+    );
+
+    await StorageService.local.set({
+      passwordSalt: newSalt,
+      passwordVerifier: newVerifier,
+      passwordIterations: CryptoService.DEFAULT_ITERATIONS,
+      failedAttemptCount: 0,
+      cooldownUntil: null
+    });
+
+    // Reset cooldown and unlock session
+    await CooldownManager.reset();
+    await LockManager.setUnlocked(true);
+
+    return { success: true };
+  },
+
+  /**
    * Authenticates user against stored verifier.
-   * Manages cooldown and unlocks the session upon success.
+   * Manages cooldown and unlocks session upon success.
    * @param {string} password
    * @returns {Promise<{
    *   success: boolean,
@@ -143,7 +278,7 @@ export const AuthManager = {
       return { success: true };
     }
 
-    // Incorrect password: record failed attempt & trigger cooldown if 5th failure
+    // Incorrect password: record failed attempt & trigger cooldown if threshold reached
     const failureResult = await CooldownManager.recordFailedAttempt();
     return {
       success: false,
@@ -153,7 +288,7 @@ export const AuthManager = {
   },
 
   /**
-   * Changes the master password. Requires current password verification.
+   * Changes master password. Requires current password verification.
    * Generates fresh random salt and derives new verifier.
    * @param {string} currentPassword
    * @param {string} newPassword
@@ -205,6 +340,52 @@ export const AuthManager = {
     });
 
     return { success: true };
+  },
+
+  /**
+   * Updates or sets security recovery question. Requires master password verification.
+   * @param {string} currentPassword
+   * @param {string} newQuestion
+   * @param {string} newAnswer
+   * @returns {Promise<{ success: boolean, error?: string }>}
+   */
+  async updateSecurityQuestion(currentPassword, newQuestion, newAnswer) {
+    const cleanAnswer = normalizeAnswer(newAnswer);
+    if (!newQuestion || !cleanAnswer) {
+      return { success: false, error: 'Security question and answer are required.' };
+    }
+
+    const credentials = await StorageService.local.get([
+      'setupCompleted',
+      'passwordSalt',
+      'passwordVerifier',
+      'passwordIterations'
+    ]);
+
+    const isOldValid = await CryptoService.verifyPassword(
+      currentPassword,
+      credentials.passwordSalt,
+      credentials.passwordVerifier,
+      credentials.passwordIterations || CryptoService.DEFAULT_ITERATIONS
+    );
+
+    if (!isOldValid) {
+      return { success: false, error: 'Current master password is incorrect.' };
+    }
+
+    const answerSalt = CryptoService.generateSalt();
+    const answerVerifier = await CryptoService.deriveKey(
+      cleanAnswer,
+      answerSalt,
+      CryptoService.DEFAULT_ITERATIONS
+    );
+
+    await StorageService.local.set({
+      securityQuestionText: newQuestion,
+      securityAnswerSalt: answerSalt,
+      securityAnswerVerifier: answerVerifier
+    });
+
+    return { success: true };
   }
 };
-

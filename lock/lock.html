@@ -64,7 +64,7 @@
           <div id="status-message" class="status-message hidden"></div>
         </div>
 
-        <!-- Cooldown Banner (appears on 5 failed attempts) -->
+        <!-- Cooldown Banner (appears when failed attempts threshold reached) -->
         <div id="cooldown-banner" class="cooldown-banner hidden" role="alert">
           <div class="cooldown-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -82,6 +82,13 @@
         <button type="submit" id="unlock-btn" class="unlock-btn">
           <span class="btn-text">UNLOCK</span>
         </button>
+
+        <!-- Forgot Password Button -->
+        <div class="forgot-pwd-wrap">
+          <button type="button" id="forgot-password-btn" class="text-link-btn">
+            Forgot Password?
+          </button>
+        </div>
       </form>
 
       <!-- Footer Info -->
@@ -96,7 +103,119 @@
     </main>
   </div>
 
+  <!-- Recovery Modal Dialog -->
+  <div id="recovery-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="recovery-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="recovery-modal-title" class="modal-title">Reset Master Password</h2>
+        <button type="button" id="close-recovery-btn" class="modal-close-btn" aria-label="Close recovery modal">&times;</button>
+      </div>
+      <p class="modal-subtitle">Answer your security question to establish a new password.</p>
+
+      <form id="recovery-form" class="lock-form" novalidate autocomplete="off">
+        <div class="recovery-q-box">
+          <span class="recovery-q-label">Security Question:</span>
+          <strong id="display-security-question" class="recovery-q-text">Loading question...</strong>
+        </div>
+
+        <!-- Secret Answer Input -->
+        <div class="input-group">
+          <label for="recovery-answer-input" class="input-label">Your Secret Answer</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="recovery-answer-input"
+              class="password-input"
+              placeholder="Enter secret answer"
+              required
+            />
+            <button
+              type="button"
+              id="toggle-recovery-answer-btn"
+              class="toggle-eye-btn"
+              aria-label="Toggle answer visibility"
+            >
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- New Master Password Input -->
+        <div class="input-group">
+          <label for="recovery-new-pwd-input" class="input-label">New Master Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="recovery-new-pwd-input"
+              class="password-input"
+              placeholder="New password (min. 6 characters)"
+              required
+            />
+            <button
+              type="button"
+              id="toggle-recovery-new-pwd-btn"
+              class="toggle-eye-btn"
+              aria-label="Toggle new password visibility"
+            >
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm New Password Input -->
+        <div class="input-group">
+          <label for="recovery-confirm-pwd-input" class="input-label">Confirm New Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="recovery-confirm-pwd-input"
+              class="password-input"
+              placeholder="Confirm new password"
+              required
+            />
+            <button
+              type="button"
+              id="toggle-recovery-confirm-pwd-btn"
+              class="toggle-eye-btn"
+              aria-label="Toggle confirm password visibility"
+            >
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recovery Status / Error -->
+        <div id="recovery-status-message" class="status-message hidden"></div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submit-recovery-btn" class="unlock-btn">
+          RESET PASSWORD & UNLOCK
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script type="module" src="lock.js"></script>
 </body>
 </html>
-

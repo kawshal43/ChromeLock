@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Tab</title>
+  <title>ChromeLock — Dashboard</title>
   <link rel="stylesheet" href="newtab.css">
 </head>
 <body>
@@ -34,10 +34,10 @@
 
   <!-- Main Dashboard -->
   <main class="dashboard-content">
-    <!-- Clock & Date Widget -->
+    <!-- Clock & Date Widget (includes seconds) -->
     <div class="clock-widget">
-      <div id="clock-time" class="clock-time">12:00</div>
-      <div id="clock-date" class="clock-date">Thursday, September 11</div>
+      <div id="clock-time" class="clock-time">12:00:00</div>
+      <div id="clock-date" class="clock-date">Saturday, September 12</div>
     </div>
 
     <!-- Search Box -->
@@ -59,32 +59,56 @@
       </div>
     </form>
 
-    <!-- Quick Links Grid -->
-    <div class="shortcuts-grid">
-      <a href="https://www.google.com" class="shortcut-item">
-        <div class="shortcut-icon-circle">G</div>
-        <span class="shortcut-label">Google</span>
-      </a>
-      <a href="https://www.youtube.com" class="shortcut-item">
-        <div class="shortcut-icon-circle yt">YT</div>
-        <span class="shortcut-label">YouTube</span>
-      </a>
-      <a href="https://github.com" class="shortcut-item">
-        <div class="shortcut-icon-circle gh">GH</div>
-        <span class="shortcut-label">GitHub</span>
-      </a>
-      <a href="https://en.wikipedia.org" class="shortcut-item">
-        <div class="shortcut-icon-circle wiki">W</div>
-        <span class="shortcut-label">Wikipedia</span>
-      </a>
-      <a href="https://reddit.com" class="shortcut-item">
-        <div class="shortcut-icon-circle rd">RD</div>
-        <span class="shortcut-label">Reddit</span>
-      </a>
+    <!-- Customizable Shortcuts Grid with Real Site Thumbnails -->
+    <div id="shortcuts-grid" class="shortcuts-grid">
+      <!-- Injected dynamically via newtab.js -->
     </div>
   </main>
+
+  <!-- Add / Edit Shortcut Modal -->
+  <div id="shortcut-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="shortcut-modal-title">
+    <div class="modal-card shortcut-modal-card">
+      <div class="modal-header">
+        <h2 id="shortcut-modal-title" class="modal-title">Add Shortcut</h2>
+        <button type="button" id="close-shortcut-modal-btn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="shortcut-form" class="shortcut-form" novalidate autocomplete="off">
+        <div class="input-group">
+          <label for="shortcut-name-input" class="input-label">Name</label>
+          <input
+            type="text"
+            id="shortcut-name-input"
+            class="password-input"
+            placeholder="e.g. YouTube, ChatGPT, GitHub"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="shortcut-url-input" class="input-label">Web Address (URL)</label>
+          <input
+            type="text"
+            id="shortcut-url-input"
+            class="password-input"
+            placeholder="e.g. https://youtube.com"
+            required
+          />
+        </div>
+
+        <div class="favicon-preview-wrap">
+          <span class="preview-label">Live Icon Preview:</span>
+          <div class="shortcut-icon-circle preview-circle">
+            <img id="shortcut-favicon-preview" src="../assets/icon32.png" alt="icon preview" class="real-favicon" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="delete-shortcut-btn" class="btn-danger-outline hidden">Delete</button>
+          <button type="submit" id="save-shortcut-btn" class="unlock-btn">Save Shortcut</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script type="module" src="newtab.js"></script>
 </body>
 </html>
-

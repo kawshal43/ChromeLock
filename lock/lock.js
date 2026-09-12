@@ -1,15 +1,14 @@
 /**
  * ChromeLock - Lock Screen UI Controller
  * Manages master password authentication, cooldown countdown,
- * visibility toggles, and cross-tab synchronization.
+ * security question recovery, visibility toggles, and cross-tab synchronization.
  */
 
-import { AuthManager } from '../scripts/auth.js';
+import { AuthManager, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../scripts/auth.js';
 import { CooldownManager } from '../scripts/cooldown.js';
 import { LockManager } from '../scripts/lock-manager.js';
-import { StorageService } from '../scripts/storage.js';
 
-// DOM Elements
+// Main Form DOM Elements
 const lockCard = document.querySelector('.lock-card');
 const lockForm = document.getElementById('lock-form');
 const passwordInput = document.getElementById('password-input');
@@ -21,8 +20,25 @@ const statusMessage = document.getElementById('status-message');
 const cooldownBanner = document.getElementById('cooldown-banner');
 const countdownDisplay = document.getElementById('countdown-display');
 
+// Recovery Modal DOM Elements
+const forgotPasswordBtn = document.getElementById('forgot-password-btn');
+const recoveryModal = document.getElementById('recovery-modal');
+const closeRecoveryBtn = document.getElementById('close-recovery-btn');
+const displaySecurityQuestion = document.getElementById('display-security-question');
+const recoveryForm = document.getElementById('recovery-form');
+const recoveryAnswerInput = document.getElementById('recovery-answer-input');
+const recoveryNewPwdInput = document.getElementById('recovery-new-pwd-input');
+const recoveryConfirmPwdInput = document.getElementById('recovery-confirm-pwd-input');
+const submitRecoveryBtn = document.getElementById('submit-recovery-btn');
+const recoveryStatusMessage = document.getElementById('recovery-status-message');
+
+const toggleRecoveryAnswerBtn = document.getElementById('toggle-recovery-answer-btn');
+const toggleRecoveryNewPwdBtn = document.getElementById('toggle-recovery-new-pwd-btn');
+const toggleRecoveryConfirmPwdBtn = document.getElementById('toggle-recovery-confirm-pwd-btn');
+
 let countdownInterval = null;
 let isSubmitting = false;
+let isRecovering = false;
 
 /**
  * Parses query parameters from current window URL.
@@ -34,6 +50,7 @@ function getQueryParams() {
 
 /**
  * Redirects away from lock screen upon successful unlock.
+ * Strictly redirects to the dashboard screen (newtab.html) unless an active web URL was intercepted.
  */
 function handleUnlockedNavigation() {
   const params = getQueryParams();
@@ -42,8 +59,8 @@ function handleUnlockedNavigation() {
   if (redirectTarget && (redirectTarget.startsWith('http://') || redirectTarget.startsWith('https://'))) {
     window.location.replace(redirectTarget);
   } else {
-    // Navigate to standard browsing
-    window.location.replace('https://www.google.com');
+    // Navigate directly to ChromeLock dashboard
+    window.location.replace(chrome.runtime.getURL('newtab/newtab.html'));
   }
 }
 
@@ -74,7 +91,6 @@ function startCooldownTimer(remainingMs) {
   toggleEyeBtn.disabled = true;
   unlockBtn.disabled = true;
 
-  // Show cooldown banner and hide error messages
   statusMessage.classList.add('hidden');
   statusMessage.textContent = '';
   cooldownBanner.classList.remove('hidden');
@@ -98,7 +114,6 @@ function startCooldownTimer(remainingMs) {
  * Ends cooldown mode, re-enabling password authentication.
  */
 async function endCooldown() {
-  // Clear persistent cooldown timestamp
   await CooldownManager.reset();
 
   cooldownBanner.classList.add('hidden');
@@ -111,7 +126,7 @@ async function endCooldown() {
 }
 
 /**
- * Displays an error status message and triggers a subtle card shake.
+ * Displays an error status message and triggers a card shake.
  * @param {string} message
  */
 function showError(message) {
@@ -119,7 +134,6 @@ function showError(message) {
   statusMessage.classList.remove('hidden');
 
   lockCard.classList.remove('shake');
-  // Trigger reflow to restart shake animation
   void lockCard.offsetWidth;
   lockCard.classList.add('shake');
 
@@ -128,7 +142,7 @@ function showError(message) {
 }
 
 /**
- * Toggles password field visibility between text and password.
+ * Toggles password field visibility.
  */
 function togglePasswordVisibility() {
   const isCurrentlyPassword = passwordInput.type === 'password';
@@ -144,6 +158,31 @@ function togglePasswordVisibility() {
     toggleEyeBtn.setAttribute('aria-label', 'Show password');
   }
 }
+
+function setupToggle(inputEl, btnEl) {
+  if (!inputEl || !btnEl) return;
+  const eyeOpen = btnEl.querySelector('.eye-open');
+  const eyeClosed = btnEl.querySelector('.eye-closed');
+
+  btnEl.addEventListener('click', () => {
+    const isPwd = inputEl.type === 'password';
+    inputEl.type = isPwd ? 'text' : 'password';
+
+    if (isPwd) {
+      eyeOpen?.classList.add('hidden');
+      eyeClosed?.classList.remove('hidden');
+      btnEl.setAttribute('aria-label', 'Hide password');
+    } else {
+      eyeOpen?.classList.remove('hidden');
+      eyeClosed?.classList.add('hidden');
+      btnEl.setAttribute('aria-label', 'Show password');
+    }
+  });
+}
+
+setupToggle(recoveryAnswerInput, toggleRecoveryAnswerBtn);
+setupToggle(recoveryNewPwdInput, toggleRecoveryNewPwdBtn);
+setupToggle(recoveryConfirmPwdInput, toggleRecoveryConfirmPwdBtn);
 
 /**
  * Handles master password submission.
@@ -168,7 +207,6 @@ async function handleAuthentication(e) {
     });
 
     if (response?.success) {
-      // Correct password!
       handleUnlockedNavigation();
       return;
     }
@@ -177,7 +215,12 @@ async function handleAuthentication(e) {
     if (response?.inCooldown || response?.error === 'COOLDOWN_ACTIVE') {
       startCooldownTimer(response.remainingMs || 30000);
     } else {
-      showError('Incorrect password.');
+      const attemptsRemaining = response?.attemptsLeft;
+      if (typeof attemptsRemaining === 'number' && attemptsRemaining > 0) {
+        showError(`Incorrect password. (${attemptsRemaining} attempt${attemptsRemaining > 1 ? 's' : ''} left)`);
+      } else {
+        showError('Incorrect password.');
+      }
     }
   } catch (err) {
     console.error('[ChromeLock] Auth error:', err);
@@ -191,24 +234,126 @@ async function handleAuthentication(e) {
 }
 
 /**
+ * Opens the Forgot Password recovery modal.
+ */
+async function openRecoveryModal() {
+  try {
+    const response = await chrome.runtime.sendMessage({ type: 'GET_SECURITY_QUESTION' });
+    if (!response?.hasQuestion || !response.question) {
+      showError('No recovery question is configured for this profile.');
+      return;
+    }
+
+    displaySecurityQuestion.textContent = response.question;
+    recoveryAnswerInput.value = '';
+    recoveryNewPwdInput.value = '';
+    recoveryConfirmPwdInput.value = '';
+    recoveryStatusMessage.classList.add('hidden');
+    recoveryStatusMessage.textContent = '';
+
+    recoveryModal.classList.remove('hidden');
+    recoveryAnswerInput.focus();
+  } catch (err) {
+    console.error('[ChromeLock] Recovery error:', err);
+    showError('Could not load recovery options.');
+  }
+}
+
+function closeRecoveryModal() {
+  recoveryModal.classList.add('hidden');
+  passwordInput.focus();
+}
+
+/**
+ * Handles security question password reset.
+ */
+async function handleRecoverySubmit(e) {
+  e.preventDefault();
+  if (isRecovering) return;
+
+  const answer = recoveryAnswerInput.value.trim();
+  const newPassword = recoveryNewPwdInput.value;
+  const confirmNewPassword = recoveryConfirmPwdInput.value;
+
+  if (!answer) {
+    showRecoveryError('Please enter your secret answer.');
+    recoveryAnswerInput.focus();
+    return;
+  }
+
+  if (newPassword.length < MIN_PASSWORD_LENGTH) {
+    showRecoveryError(`New password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+    recoveryNewPwdInput.focus();
+    return;
+  }
+
+  if (newPassword.length > MAX_PASSWORD_LENGTH) {
+    showRecoveryError(`New password must not exceed ${MAX_PASSWORD_LENGTH} characters.`);
+    recoveryNewPwdInput.focus();
+    return;
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    showRecoveryError('New passwords do not match. Please verify.');
+    recoveryConfirmPwdInput.focus();
+    return;
+  }
+
+  isRecovering = true;
+  submitRecoveryBtn.disabled = true;
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: 'RESET_PASSWORD_WITH_ANSWER',
+      answer,
+      newPassword
+    });
+
+    if (response?.success) {
+      recoveryModal.classList.add('hidden');
+      handleUnlockedNavigation();
+      return;
+    }
+
+    if (response?.inCooldown || response?.error === 'COOLDOWN_ACTIVE') {
+      recoveryModal.classList.add('hidden');
+      startCooldownTimer(response.remainingMs || 30000);
+      showError('Too many failed attempts. Account locked.');
+    } else {
+      showRecoveryError('Incorrect secret answer. Please try again.');
+      recoveryAnswerInput.value = '';
+      recoveryAnswerInput.focus();
+    }
+  } catch (err) {
+    console.error('[ChromeLock] Recovery submit error:', err);
+    showRecoveryError('An error occurred during password reset.');
+  } finally {
+    isRecovering = false;
+    submitRecoveryBtn.disabled = false;
+  }
+}
+
+function showRecoveryError(msg) {
+  recoveryStatusMessage.textContent = msg;
+  recoveryStatusMessage.classList.remove('hidden');
+}
+
+/**
  * Synchronizes lock screen state on load and when tab gains focus.
  */
 async function syncLockState() {
-  // 1. Verify setup status
   const isConfigured = await AuthManager.isSetupCompleted();
   if (!isConfigured) {
     window.location.replace(chrome.runtime.getURL('setup/setup.html'));
     return;
   }
 
-  // 2. Check if already unlocked in this session
   const isUnlocked = await LockManager.isUnlocked();
   if (isUnlocked) {
     handleUnlockedNavigation();
     return;
   }
 
-  // 3. Check for active cooldown (restart-safe evaluation)
   const cooldown = await CooldownManager.checkStatus();
   if (cooldown.inCooldown) {
     startCooldownTimer(cooldown.remainingMs);
@@ -229,6 +374,17 @@ async function syncLockState() {
 lockForm.addEventListener('submit', handleAuthentication);
 toggleEyeBtn.addEventListener('click', togglePasswordVisibility);
 
+forgotPasswordBtn.addEventListener('click', openRecoveryModal);
+closeRecoveryBtn.addEventListener('click', closeRecoveryModal);
+recoveryForm.addEventListener('submit', handleRecoverySubmit);
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !recoveryModal.classList.contains('hidden')) {
+    closeRecoveryModal();
+  }
+});
+
 // Listen for unlocks or relocks from other tabs
 chrome.runtime.onMessage.addListener((message) => {
   if (message?.type === 'LOCK_STATE_CHANGED') {
@@ -240,7 +396,6 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
-// Sync on visibility change (e.g. user switches tabs or reopens window)
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     syncLockState();
@@ -249,4 +404,3 @@ document.addEventListener('visibilitychange', () => {
 
 // Initial load
 syncLockState();
-

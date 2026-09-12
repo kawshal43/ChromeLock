@@ -56,14 +56,19 @@ ChromeLock **never** persists, logs, or transmits plain-text passwords.
 ## Key Features
 
 - **Startup Lock**: Every time Chrome launches, open tabs are intercepted, destination URLs are saved, and the ChromeLock screen is enforced.
-- **Tab & Navigation Interception**: Intercepts direct URL entry in the address bar (`http://`, `https://`, `localhost`, IP addresses), external links clicked from other applications, and bookmarks.
+- **Pre-Configured Recommended Defaults**: Sensible security defaults (5 attempts, 30s lockout, 5m inactivity auto-lock, live seconds clock) enabled out of the box with user customization during setup and in settings.
+- **Case-Insensitive Security Question Recovery**: "Forgot Password?" recovery powered by PBKDF2-SHA-256 with case-insensitive, whitespace-normalized answers. Zero plaintext stored.
+- **Customizable Lockout Policies**: Select 3, 5, or 10 allowed attempts with 15s, 30s, 60s, 120s, or 300s cooldown duration.
+- **Inactivity Auto-Lock**: Automatically locks the browser after 30 seconds, 1m, 2m, 5m, 10m, 30m, or 1h of user inactivity.
+- **Scheduled Time-Window Lock (Quiet Hours)**: Define work or sleep schedules (e.g., 22:00 to 07:00) where Chrome stays locked automatically.
+- **Tab & Navigation Interception**: Intercepts direct URL entry in the address bar (`http://`, `https://`, `localhost`, IP addresses), external links clicked from other applications, and bookmarks without triggering Chrome's "Change back to Google?" prompt.
 - **Preserve & Restore Tabs**: Restores your original URLs upon authentication rather than discarding your open tabs.
-- **New Tab Protection (`Ctrl + T`)**: Overrides Chrome's New Tab page. When locked, it renders the lock screen. When unlocked, it displays a clean, minimalist new tab dashboard with search, clock, and quick shortcuts.
+- **Dashboard with Live Seconds Clock**: Post-unlock minimalist dashboard featuring real-time clock with seconds (`HH:MM:SS`), Google search, and customizable shortcuts.
+- **Customizable Shortcuts with Real Favicons**: Add, edit, and organize dashboard shortcuts fetching clean 128px site favicons with monogram fallback.
 - **Multi-Window Sync**: All windows in the profile share the session lock state. Authenticating in one unlocks the entire session.
 - **Manual Lock Shortcut (`Ctrl + Shift + L`)**: Instantly locks all browsing activity.
-- **Toolbar Action Popup**: Clean popup displaying security status with a one-click **Lock Now** trigger.
-- **Password Rotation**: Secure settings interface requiring verification of the current master password before generating fresh salt and verifiers.
-- **Optional Inactivity Auto-Lock**: Automatically locks the browser session after 1, 5, 10, or 30 minutes of system inactivity.
+- **Toolbar Action Popup**: Clean popup displaying security status with a one-click **Lock Now** trigger and developer credits.
+- **Password Rotation**: Secure settings interface requiring verification of the current master password before updating.
 
 ---
 
@@ -140,7 +145,7 @@ To prevent bypasses on a managed workstation, configure the following Chrome ent
 
 1. **Not an Operating System Replacement**: ChromeLock is a browser-level security extension for Google Chrome. It does **not** replace Windows login, BitLocker, or OS account credentials. It cannot prevent an administrator from ending the Chrome process in Windows Task Manager or launching another browser installed on the computer.
 2. **Chrome Internal Pages**: Google Chrome security architecture restricts extension content scripts and tab manipulation on certain privileged internal surfaces (such as `chrome://flags` or Chrome Web Store pages). ChromeLock secures all standard web navigation (`http://`, `https://`, file, local network) and browser new tabs.
-3. **Password Recovery**: There is deliberately **no** "Forgot Password" or recovery backdoor built into the UI, as backdoor mechanisms introduce critical attack vectors. If the password is forgotten, recovery is performed at the administrative level by removing the extension from the profile directory.
+3. **Password Recovery Architecture**: Password recovery is protected by a case-insensitive PBKDF2-SHA-256 hashed security question. Answers are never stored in plaintext. Incorrect recovery attempts also trigger the progressive cooldown lockout policy to protect against brute-force guessing. If both master password and recovery answers are lost, recovery requires removing the extension directory from the Chrome profile.
 
 ---
 

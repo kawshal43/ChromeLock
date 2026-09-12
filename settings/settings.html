@@ -15,7 +15,7 @@
         <img src="../assets/icon32.png" alt="ChromeLock" class="header-icon" />
         <div>
           <h1 class="header-title">ChromeLock Settings</h1>
-          <p class="header-desc">Manage security preferences and master authentication</p>
+          <p class="header-desc">Manage authentication, recovery questions, lockout policies, and preferences</p>
         </div>
       </div>
       <a href="../newtab/newtab.html" class="back-link">
@@ -23,13 +23,13 @@
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
-        Close
+        Back to Dashboard
       </a>
     </header>
 
-    <!-- Main Content Panels -->
+    <!-- Main Content Panels Grid -->
     <div class="settings-grid">
-      <!-- Panel 1: Change Master Password -->
+      <!-- Panel 1: Master Password Rotation -->
       <section class="settings-card" aria-labelledby="change-pwd-title">
         <h2 id="change-pwd-title" class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -41,7 +41,6 @@
         <p class="card-subtitle">Verify your current master password and establish a new one.</p>
 
         <form id="change-pwd-form" class="settings-form" novalidate autocomplete="off">
-          <!-- Current Password -->
           <div class="input-group">
             <label for="current-password" class="field-label">Current Master Password</label>
             <div class="input-wrapper">
@@ -60,7 +59,6 @@
             </div>
           </div>
 
-          <!-- New Password -->
           <div class="input-group">
             <label for="new-password" class="field-label">New Password (min. 6 characters)</label>
             <div class="input-wrapper">
@@ -79,7 +77,6 @@
             </div>
           </div>
 
-          <!-- Confirm New Password -->
           <div class="input-group">
             <label for="confirm-new-password" class="field-label">Confirm New Password</label>
             <div class="input-wrapper">
@@ -106,42 +103,215 @@
         </form>
       </section>
 
-      <!-- Panel 2: Auto-Lock Preference -->
+      <!-- Panel 2: Password Recovery Security Question -->
+      <section class="settings-card" aria-labelledby="recovery-title">
+        <h2 id="recovery-title" class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Password Recovery Question
+        </h2>
+        <p class="card-subtitle">Set or update your case-insensitive secret recovery question.</p>
+
+        <form id="recovery-settings-form" class="settings-form" novalidate autocomplete="off">
+          <div class="input-group">
+            <label for="recovery-current-pwd" class="field-label">Current Master Password</label>
+            <input
+              type="password"
+              id="recovery-current-pwd"
+              class="password-input"
+              placeholder="Confirm master password"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="settings-question-select" class="field-label">Security Question</label>
+            <select id="settings-question-select" class="settings-select">
+              <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+              <option value="In what city were you born?">In what city were you born?</option>
+              <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+              <option value="What is your favorite book or movie?">What is your favorite book or movie?</option>
+              <option value="What was the name of your first school?">What was the name of your first school?</option>
+              <option value="custom">Write custom question...</option>
+            </select>
+          </div>
+
+          <div id="settings-custom-q-wrap" class="input-group hidden">
+            <label for="settings-custom-q-input" class="field-label">Custom Question</label>
+            <input
+              type="text"
+              id="settings-custom-q-input"
+              class="password-input"
+              placeholder="e.g., What was my first car?"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="settings-answer-input" class="field-label">Secret Answer (Case-Insensitive)</label>
+            <input
+              type="password"
+              id="settings-answer-input"
+              class="password-input"
+              placeholder="Enter new secret answer"
+              required
+            />
+          </div>
+
+          <div id="recovery-q-status" class="status-message hidden"></div>
+
+          <button type="submit" id="save-recovery-q-btn" class="unlock-btn">
+            UPDATE RECOVERY QUESTION
+          </button>
+        </form>
+      </section>
+
+      <!-- Panel 3: Customizable Lockout Policy -->
+      <section class="settings-card" aria-labelledby="policy-title">
+        <h2 id="policy-title" class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Wrong Password Lockout Policy
+        </h2>
+        <p class="card-subtitle">Configure failed attempt thresholds and lockout cooldown penalties.</p>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <label for="attempts-select" class="field-label">Incorrect Attempts Allowed:</label>
+            <span class="setting-desc">Number of failed tries before activating cooldown.</span>
+          </div>
+          <select id="attempts-select" class="settings-select">
+            <option value="3">3 Attempts</option>
+            <option value="5" selected>5 Attempts (Standard)</option>
+            <option value="10">10 Attempts</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <label for="cooldown-select" class="field-label">Cooldown Duration:</label>
+            <span class="setting-desc">Lockout penalty time per failure group.</span>
+          </div>
+          <select id="cooldown-select" class="settings-select">
+            <option value="15">15 Seconds</option>
+            <option value="30" selected>30 Seconds (Standard)</option>
+            <option value="60">60 Seconds (1 Minute)</option>
+            <option value="120">120 Seconds (2 Minutes)</option>
+            <option value="300">300 Seconds (5 Minutes)</option>
+          </select>
+        </div>
+        <span id="policy-saved-indicator" class="saved-indicator hidden">Policy Saved!</span>
+      </section>
+
+      <!-- Panel 4: Inactivity & Scheduled Auto-Lock -->
       <section class="settings-card" aria-labelledby="autolock-title">
         <h2 id="autolock-title" class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
-          Inactivity Auto-Lock
+          Inactivity & Scheduled Lock
         </h2>
-        <p class="card-subtitle">Automatically locks your browser session after a period of user inactivity.</p>
+        <p class="card-subtitle">Automatically lock your browser session after inactivity or during quiet hours.</p>
 
-        <div class="autolock-row">
-          <label for="autolock-select" class="field-label">Auto-lock after:</label>
+        <div class="setting-row">
+          <div class="setting-info">
+            <label for="autolock-select" class="field-label">Inactivity Auto-Lock:</label>
+            <span class="setting-desc">Lock if browser is untouched for this time.</span>
+          </div>
           <select id="autolock-select" class="settings-select">
             <option value="0">Never (Default)</option>
+            <option value="0.5">30 seconds</option>
             <option value="1">1 minute</option>
+            <option value="2">2 minutes</option>
             <option value="5">5 minutes</option>
             <option value="10">10 minutes</option>
+            <option value="15">15 minutes</option>
             <option value="30">30 minutes</option>
+            <option value="60">1 hour</option>
           </select>
         </div>
-        <span id="autolock-saved-indicator" class="saved-indicator hidden">Saved!</span>
 
-        <!-- Panel 3: Cryptographic & Architecture Specs -->
+        <div class="setting-divider"></div>
+
+        <!-- Scheduled Night Lock Window -->
+        <div class="scheduled-lock-section">
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="scheduled-lock-toggle" class="field-label">Scheduled Night / Focus Lock:</label>
+              <span class="setting-desc">Enforce lock automatically during set hours.</span>
+            </div>
+            <input type="checkbox" id="scheduled-lock-toggle" class="settings-checkbox" />
+          </div>
+
+          <div id="scheduled-times-row" class="scheduled-times-row hidden">
+            <div class="time-input-group">
+              <label for="scheduled-start-time" class="field-label">From:</label>
+              <input type="time" id="scheduled-start-time" class="time-input" value="22:00" />
+            </div>
+            <div class="time-input-group">
+              <label for="scheduled-end-time" class="field-label">Until:</label>
+              <input type="time" id="scheduled-end-time" class="time-input" value="06:00" />
+            </div>
+          </div>
+        </div>
+        <span id="autolock-saved-indicator" class="saved-indicator hidden">Saved!</span>
+      </section>
+
+      <!-- Panel 5: Dashboard & Clock Preferences -->
+      <section class="settings-card" aria-labelledby="dashboard-prefs-title">
+        <h2 id="dashboard-prefs-title" class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="6" x2="12" y2="12"></line>
+            <line x1="12" y1="12" x2="16" y2="14"></line>
+          </svg>
+          Dashboard Clock Preferences
+        </h2>
+        <p class="card-subtitle">Customize the time display on your dashboard.</p>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <label for="show-seconds-toggle" class="field-label">Display Seconds in Clock:</label>
+            <span class="setting-desc">Show live seconds (e.g. 11:28:45).</span>
+          </div>
+          <input type="checkbox" id="show-seconds-toggle" class="settings-checkbox" checked />
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <label for="format-24h-toggle" class="field-label">24-Hour Time Format:</label>
+            <span class="setting-desc">Display time in 24-hour mode without AM/PM.</span>
+          </div>
+          <input type="checkbox" id="format-24h-toggle" class="settings-checkbox" />
+        </div>
+        <span id="clock-saved-indicator" class="saved-indicator hidden">Saved!</span>
+      </section>
+
+      <!-- Panel 6: Security Architecture & Developer Info -->
+      <section class="settings-card" aria-labelledby="developer-title">
+        <h2 id="developer-title" class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Developer & Security Information
+        </h2>
+
         <div class="crypto-spec-box">
-          <h3 class="spec-title">Security Specifications</h3>
+          <h3 class="spec-title">Cryptographic Architecture</h3>
           <ul class="spec-list">
             <li><strong>Derivation:</strong> PBKDF2 with SHA-256 (100,000 rounds)</li>
-            <li><strong>Salt:</strong> 16-byte cryptographically secure random salt</li>
+            <li><strong>Salts:</strong> 16-byte cryptographically secure random salts</li>
             <li><strong>Lock Scope:</strong> Session-scoped (purged on Chrome exit)</li>
             <li><strong>Fail Model:</strong> Fail-Closed (defaults to LOCKED)</li>
             <li><strong>Network:</strong> 100% Offline (zero analytics, zero external requests)</li>
           </ul>
         </div>
 
-        <!-- Developer Info Box -->
         <div class="crypto-spec-box developer-box">
           <h3 class="spec-title">Developer Details</h3>
           <ul class="spec-list">
@@ -157,4 +327,3 @@
   <script type="module" src="settings.js"></script>
 </body>
 </html>
-

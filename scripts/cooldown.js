@@ -1,35 +1,61 @@
 /**
  * ChromeLock - Cooldown Manager
- * Enforces exact 5-attempt limit and exact 30-second lockout.
+ * Enforces configurable attempt limits (3, 5, or 10) and cooldown lockout (15s, 30s, 60s, etc.).
  *
  * Rules:
- * - 5 wrong attempts -> block for exactly 30 seconds (30,000 ms).
+ * - When failed attempts reach the configured limit -> block for the configured cooldown duration.
  * - Cooldown duration is CONSTANT (never increases, no exponential backoff).
  * - Absolute cooldown end timestamp (cooldownUntil) is stored in persistent storage.local
  *   so closing/restarting Chrome cannot reset or bypass the cooldown.
- * - When cooldown expires, user receives another 5 attempts.
+ * - When cooldown expires, user receives the full quota of fresh attempts.
  * - Any successful authentication immediately clears cooldown and resets failure count.
  */
 
 import { StorageService } from './storage.js';
 
-export const MAX_FAILED_ATTEMPTS = 5;
-export const COOLDOWN_DURATION_MS = 30000; // Exactly 30 seconds
+export const DEFAULT_MAX_FAILED_ATTEMPTS = 5;
+export const DEFAULT_COOLDOWN_DURATION_MS = 30000; // 30 seconds default
+
+// Backward-compatible aliases
+export const MAX_FAILED_ATTEMPTS = DEFAULT_MAX_FAILED_ATTEMPTS;
+export const COOLDOWN_DURATION_MS = DEFAULT_COOLDOWN_DURATION_MS;
 
 export const CooldownManager = {
   /**
-   * Checks the current cooldown status against persistent storage.
-   * If an active cooldown exists, calculates remaining milliseconds.
-   * If a stored cooldown has expired, resets it automatically.
+   * Retrieves user-configured lockout policy from local storage.
+   * @returns {Promise<{ maxAttempts: number, cooldownMs: number }>}
+   */
+  async getPolicy() {
+    try {
+      const data = await StorageService.local.get('lockoutPolicy');
+      const policy = data?.lockoutPolicy || {};
+      const maxAttempts = parseInt(policy.maxAttempts, 10) || DEFAULT_MAX_FAILED_ATTEMPTS;
+      const cooldownSeconds = parseInt(policy.cooldownSeconds, 10) || (DEFAULT_COOLDOWN_DURATION_MS / 1000);
+      return {
+        maxAttempts: [3, 5, 10].includes(maxAttempts) ? maxAttempts : DEFAULT_MAX_FAILED_ATTEMPTS,
+        cooldownMs: cooldownSeconds * 1000
+      };
+    } catch {
+      return {
+        maxAttempts: DEFAULT_MAX_FAILED_ATTEMPTS,
+        cooldownMs: DEFAULT_COOLDOWN_DURATION_MS
+      };
+    }
+  },
+
+  /**
+   * Checks current cooldown status against persistent storage and active policy.
    * @returns {Promise<{
    *   inCooldown: boolean,
    *   remainingMs: number,
    *   remainingSeconds: number,
    *   failedAttemptCount: number,
-   *   attemptsLeft: number
+   *   attemptsLeft: number,
+   *   maxAttempts: number
    * }>}
    */
   async checkStatus() {
+    const { maxAttempts } = await this.getPolicy();
     const data = await StorageService.local.get(['cooldownUntil', 'failedAttemptCount']);
     const now = Date.now();
     const cooldownUntil = data.cooldownUntil || null;
@@ -43,7 +69,8 @@ export const CooldownManager = {
           remainingMs,
           remainingSeconds: Math.ceil(remainingMs / 1000),
           failedAttemptCount: 0,
-          attemptsLeft: 0
+          attemptsLeft: 0,
+          maxAttempts
         };
       } else {
         // Cooldown has expired while Chrome was closed or inactive
@@ -56,7 +83,8 @@ export const CooldownManager = {
           remainingMs: 0,
           remainingSeconds: 0,
           failedAttemptCount: 0,
-          attemptsLeft: MAX_FAILED_ATTEMPTS
+          attemptsLeft: maxAttempts,
+          maxAttempts
         };
       }
     }
@@ -66,22 +94,25 @@ export const CooldownManager = {
       remainingMs: 0,
       remainingSeconds: 0,
       failedAttemptCount,
-      attemptsLeft: Math.max(0, MAX_FAILED_ATTEMPTS - failedAttemptCount)
+      attemptsLeft: Math.max(0, maxAttempts - failedAttemptCount),
+      maxAttempts
     };
   },
 
   /**
    * Records a failed authentication attempt.
-   * Increments the failure counter. On the 5th failure, triggers an exact 30s cooldown.
+   * Increments the failure counter. On reaching maxAttempts, triggers cooldown.
    * @returns {Promise<{
    *   inCooldown: boolean,
    *   remainingMs: number,
    *   remainingSeconds: number,
    *   failedAttemptCount: number,
-   *   attemptsLeft: number
+   *   attemptsLeft: number,
+   *   maxAttempts: number
    * }>}
    */
   async recordFailedAttempt() {
+    const policy = await this.getPolicy();
     const status = await this.checkStatus();
     if (status.inCooldown) {
       return status;
@@ -89,26 +120,27 @@ export const CooldownManager = {
 
     const newCount = status.failedAttemptCount + 1;
 
-    if (newCount >= MAX_FAILED_ATTEMPTS) {
-      // 5th failed attempt reached -> Trigger exact 30s cooldown
+    if (newCount >= policy.maxAttempts) {
+      // Failed attempts limit reached -> Trigger cooldown
       const now = Date.now();
-      const cooldownUntil = now + COOLDOWN_DURATION_MS;
+      const cooldownUntil = now + policy.cooldownMs;
 
       await StorageService.local.set({
         cooldownUntil,
-        failedAttemptCount: 0 // Reset counter for the next cycle
+        failedAttemptCount: 0 // Reset counter for next cycle
       });
 
       return {
         inCooldown: true,
-        remainingMs: COOLDOWN_DURATION_MS,
-        remainingSeconds: Math.ceil(COOLDOWN_DURATION_MS / 1000),
+        remainingMs: policy.cooldownMs,
+        remainingSeconds: Math.ceil(policy.cooldownMs / 1000),
         failedAttemptCount: 0,
-        attemptsLeft: 0
+        attemptsLeft: 0,
+        maxAttempts: policy.maxAttempts
       };
     }
 
-    // Attempt 1 to 4 failed
+    // Attempts below threshold
     await StorageService.local.set({
       failedAttemptCount: newCount
     });
@@ -118,12 +150,13 @@ export const CooldownManager = {
       remainingMs: 0,
       remainingSeconds: 0,
       failedAttemptCount: newCount,
-      attemptsLeft: MAX_FAILED_ATTEMPTS - newCount
+      attemptsLeft: policy.maxAttempts - newCount,
+      maxAttempts: policy.maxAttempts
     };
   },
 
   /**
-   * Resets the failure counter and clears any cooldown upon successful authentication.
+   * Resets failure counter and clears any cooldown upon successful authentication.
    */
   async reset() {
     await StorageService.local.set({
@@ -132,4 +165,3 @@ export const CooldownManager = {
     });
   }
 };
-

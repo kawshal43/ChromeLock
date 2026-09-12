@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="setup.css">
 </head>
 <body>
-  <div class="lock-wrapper">
+  <div class="lock-wrapper setup-wrapper">
     <main class="lock-card" role="region" aria-labelledby="setup-title">
       <!-- Header -->
       <div class="lock-header">
@@ -21,20 +21,20 @@
           </svg>
         </div>
         <h1 id="setup-title" class="lock-title">CHROMELOCK</h1>
-        <p class="lock-subtitle">Create a master password to protect your browsing</p>
+        <p class="lock-subtitle">Create a master password & security recovery question</p>
       </div>
 
       <!-- Setup Form -->
       <form id="setup-form" class="lock-form" novalidate autocomplete="off">
         <!-- New Password Input -->
         <div class="input-group">
-          <label for="password-input" class="input-label">Create Password</label>
+          <label for="password-input" class="input-label">Create Master Password</label>
           <div class="input-wrapper">
             <input
               type="password"
               id="password-input"
               class="password-input"
-              placeholder="Enter master password (min. 6 characters)"
+              placeholder="Enter password (min. 6 characters)"
               autocomplete="new-password"
               autofocus
               required
@@ -45,11 +45,11 @@
               class="toggle-eye-btn"
               aria-label="Toggle password visibility"
             >
-              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
-              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                 <line x1="1" y1="1" x2="23" y2="23"></line>
               </svg>
@@ -59,7 +59,7 @@
 
         <!-- Confirm Password Input -->
         <div class="input-group">
-          <label for="confirm-password-input" class="input-label">Confirm Password</label>
+          <label for="confirm-password-input" class="input-label">Confirm Master Password</label>
           <div class="input-wrapper">
             <input
               type="password"
@@ -75,15 +75,132 @@
               class="toggle-eye-btn"
               aria-label="Toggle confirm password visibility"
             >
-              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
-              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                 <line x1="1" y1="1" x2="23" y2="23"></line>
               </svg>
             </button>
+          </div>
+        </div>
+
+        <!-- Security Question Section -->
+        <div class="recovery-section">
+          <div class="recovery-header">
+            <span class="recovery-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              Password Recovery Question
+            </span>
+            <span class="recovery-badge">Case-Insensitive</span>
+          </div>
+          <p class="recovery-hint">Used to reset your password if you ever forget it. Answers are not case-sensitive.</p>
+
+          <div class="input-group">
+            <label for="security-question-select" class="input-label">Security Question</label>
+            <select id="security-question-select" class="setup-select">
+              <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+              <option value="In what city were you born?">In what city were you born?</option>
+              <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+              <option value="What is your favorite book or movie?">What is your favorite book or movie?</option>
+              <option value="What was the name of your first school?">What was the name of your first school?</option>
+              <option value="custom">Write my own question...</option>
+            </select>
+          </div>
+
+          <!-- Custom Question Input (hidden by default) -->
+          <div id="custom-question-group" class="input-group hidden">
+            <label for="custom-question-input" class="input-label">Custom Question</label>
+            <input
+              type="text"
+              id="custom-question-input"
+              class="password-input"
+              placeholder="e.g., What was my first car?"
+            />
+          </div>
+
+          <!-- Security Answer Input -->
+          <div class="input-group">
+            <label for="security-answer-input" class="input-label">Secret Answer</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                id="security-answer-input"
+                class="password-input"
+                placeholder="Enter secret answer"
+                required
+              />
+              <button
+                type="button"
+                id="toggle-answer-btn"
+                class="toggle-eye-btn"
+                aria-label="Toggle answer visibility"
+              >
+                <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="eye-icon eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommended Settings Section -->
+        <div class="recovery-section recommended-section">
+          <div class="recovery-header">
+            <span class="recovery-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              Recommended Security Settings
+            </span>
+            <span class="recovery-badge optimal-badge">Pre-Configured</span>
+          </div>
+          <p class="recovery-hint">These optimal settings are pre-selected for maximum protection. You can adjust them now or change them in Settings anytime.</p>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="setup-attempts-select" class="input-label">Lockout Policy</label>
+              <span class="setting-desc">Wrong attempts before lockout.</span>
+            </div>
+            <select id="setup-attempts-select" class="setup-select compact-select">
+              <option value="3">3 Tries (15s Lock)</option>
+              <option value="5" selected>5 Tries (30s Lock - Recommended)</option>
+              <option value="10">10 Tries (60s Lock)</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="setup-autolock-select" class="input-label">Inactivity Auto-Lock</label>
+              <span class="setting-desc">Locks Chrome if untouched.</span>
+            </div>
+            <select id="setup-autolock-select" class="setup-select compact-select">
+              <option value="0">Never</option>
+              <option value="1">1 minute</option>
+              <option value="2">2 minutes</option>
+              <option value="5" selected>5 minutes (Recommended)</option>
+              <option value="10">10 minutes</option>
+              <option value="30">30 minutes</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="setup-seconds-checkbox" class="input-label">Display Seconds in Clock</label>
+              <span class="setting-desc">Shows live seconds (e.g. 11:28:45).</span>
+            </div>
+            <input type="checkbox" id="setup-seconds-checkbox" class="settings-checkbox" checked />
           </div>
         </div>
 
@@ -104,7 +221,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
-          Master passwords are never stored in plaintext
+          Master passwords & answers are securely hashed with PBKDF2
         </span>
       </div>
     </main>
@@ -113,4 +230,3 @@
   <script type="module" src="setup.js"></script>
 </body>
 </html>
-
