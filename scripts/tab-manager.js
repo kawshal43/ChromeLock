@@ -128,16 +128,24 @@ export const TabManager = {
       return; // Browsing allowed
     }
 
-    // Session is LOCKED: any tab that is not our extension page must be locked
+    // Session is LOCKED: any tab that is not the active lock screen must be locked
     const url = tab.url || tab.pendingUrl || '';
+    const targetUrl = setupCompleted ? this.getLockUrl() : this.getSetupUrl();
+
+    if (url.startsWith(targetUrl)) {
+      return;
+    }
+
+    // If this tab is on dashboard or settings while locked, redirect to lock screen
     if (this.isExtensionUrl(url)) {
+      await this.redirectTo(tab.id, targetUrl);
       return;
     }
 
     if (this.isInterceptableUrl(url)) {
       await this.saveTabUrl(tab.id, url);
     }
-    await this.redirectTo(tab.id, this.getLockUrl());
+    await this.redirectTo(tab.id, targetUrl);
   },
 
   /**
@@ -167,10 +175,17 @@ export const TabManager = {
 
       for (const tab of tabs) {
         const url = tab.url || tab.pendingUrl || '';
+
+        // If tab is already the lock screen, keep it
+        if (url.startsWith(targetUrl)) {
+          hasLockTab = true;
+          continue;
+        }
+
+        // If tab is on another extension page (e.g. dashboard, settings), redirect to lock screen
         if (this.isExtensionUrl(url)) {
-          if (url.startsWith(targetUrl)) {
-            hasLockTab = true;
-          }
+          await this.redirectTo(tab.id, targetUrl);
+          hasLockTab = true;
           continue;
         }
 

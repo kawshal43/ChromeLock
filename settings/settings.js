@@ -270,6 +270,15 @@ async function saveClockPreferences() {
 showSecondsToggle.addEventListener('change', saveClockPreferences);
 format24hToggle.addEventListener('change', saveClockPreferences);
 
+// Back to Dashboard link handler
+const backLink = document.querySelector('.back-link');
+if (backLink) {
+  backLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = chrome.runtime.getURL('newtab/newtab.html');
+  });
+}
+
 // 6. Initialize Settings Page
 async function init() {
   const isConfigured = await AuthManager.isSetupCompleted();

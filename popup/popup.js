@@ -52,9 +52,28 @@ async function refreshState() {
 
 // Lock Now Action
 lockNowBtn.addEventListener('click', async () => {
-  await chrome.runtime.sendMessage({ type: 'LOCK_NOW' });
+  try {
+    await LockManager.lockSession();
+  } catch {}
+  try {
+    await chrome.runtime.sendMessage({ type: 'LOCK_NOW' });
+  } catch {}
   window.close();
 });
+
+// Settings Link
+const openSettingsLink = document.getElementById('open-settings-link');
+if (openSettingsLink) {
+  openSettingsLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (chrome.runtime?.openOptionsPage) {
+      chrome.runtime.openOptionsPage();
+    } else {
+      chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html') });
+    }
+    window.close();
+  });
+}
 
 // Go to Lock Screen Action
 openLockBtn.addEventListener('click', async () => {

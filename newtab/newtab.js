@@ -13,6 +13,7 @@ const clockDate = document.getElementById('clock-date');
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
 const quickLockBtn = document.getElementById('quick-lock-btn');
+const settingsBtn = document.getElementById('settings-btn');
 const shortcutsGrid = document.getElementById('shortcuts-grid');
 
 // Modal Elements
@@ -280,10 +281,43 @@ searchForm.addEventListener('submit', (e) => {
 });
 
 // Quick Lock button
-quickLockBtn.addEventListener('click', async () => {
-  await chrome.runtime.sendMessage({ type: 'LOCK_NOW' });
-  window.location.replace(chrome.runtime.getURL('lock/lock.html'));
-});
+if (quickLockBtn) {
+  quickLockBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      await LockManager.lockSession();
+    } catch (err) {
+      console.warn('[ChromeLock] Client lock error:', err);
+    }
+
+    try {
+      chrome.runtime.sendMessage({ type: 'LOCK_NOW' }).catch(() => {});
+    } catch (err) {
+      console.warn('[ChromeLock] Background lock error:', err);
+    }
+
+    window.location.replace(chrome.runtime.getURL('lock/lock.html'));
+  });
+}
+
+// Settings button
+if (settingsBtn) {
+  settingsBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      if (chrome.runtime?.openOptionsPage) {
+        chrome.runtime.openOptionsPage();
+      } else if (chrome.tabs?.create) {
+        await chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html') });
+      } else {
+        window.location.href = chrome.runtime.getURL('settings/settings.html');
+      }
+    } catch (err) {
+      console.warn('[ChromeLock] Open settings error:', err);
+      window.location.href = chrome.runtime.getURL('settings/settings.html');
+    }
+  });
+}
 
 // Listen for lock broadcasts from other windows or keyboard shortcuts
 chrome.runtime.onMessage.addListener((message) => {
